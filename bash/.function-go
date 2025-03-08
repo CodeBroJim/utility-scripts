@@ -1,0 +1,92 @@
+# ~/.function-go
+# Utility script to manage shortcuts for frequently used websites
+
+# ----------------------------
+# GitHub Section (Dynamic Username via SSH)
+# ----------------------------
+goto_git() {
+    local base_url="https://github.com"
+    local repo_name=""
+    local username
+
+    # Extract GitHub username via SSH
+    username=$(ssh -T git@github.com 2>&1 | sed -n 's/^Hi \([^!]*\)!.*$/\1/p')
+
+    # If username extraction fails
+    if [[ -z "$username" ]]; then
+        echo "❌ Failed to determine GitHub username via SSH."
+        echo "Ensure your SSH keys are configured and linked to your GitHub account."
+        return 1
+    fi
+
+    # Parse flags
+    while [[ "$#" -gt 0 ]]; do
+        case "$1" in
+            --repo)
+                shift
+                repo_name="$1"
+                ;;
+            *)
+                echo "Unknown flag: $1"
+                echo "Usage: goto git [--repo <repo-name>]"
+                return 1
+                ;;
+        esac
+        shift
+    done
+
+    # Handle --repo flag
+    if [[ -n "$repo_name" ]]; then
+        echo "Opening repository: $repo_name..."
+        _goto_open "$base_url/$username/$repo_name"
+    else
+        echo "Opening GitHub home page for user: $username..."
+        _goto_open "$base_url/$username"
+    fi
+}
+
+# ----------------------------
+# Blog Section
+# ----------------------------
+goto_blog() {
+    local blog_url="https://codebrojim.com"
+    echo "Opening Blog..."
+    _goto_open "$blog_url"
+}
+
+# ----------------------------
+# Generic Open Function
+# ----------------------------
+_goto_open() {
+    local url="$1"
+    if command -v xdg-open &>/dev/null; then
+        xdg-open "$url"  # Linux
+    elif command -v open &>/dev/null; then
+        open "$url"      # macOS
+    else
+        echo "Could not detect the appropriate 'open' command for your system."
+    fi
+}
+
+# ----------------------------
+# Main goto Function
+# ----------------------------
+goto() {
+    local option="$1"
+    shift  # Shift to access additional arguments like repo names
+
+    case "$option" in
+        git)
+            goto_git "$@"
+            ;;
+        blog)
+            goto_blog
+            ;;
+        *)
+            echo "Unknown option: $option"
+            echo "Available options:"
+            echo "  - git [--repo <repo-name>]: Open GitHub or a specific repository"
+            echo "  - blog: Open the blog"
+            ;;
+    esac
+}
