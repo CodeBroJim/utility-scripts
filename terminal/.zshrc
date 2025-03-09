@@ -1,5 +1,5 @@
 if [ -f ~/.zshsrc ]; then
-    source ~/.zshsrc
+    source ~/.terminal-shortcuts
 fi
 
 if [ -f ~/.function-go ]; then

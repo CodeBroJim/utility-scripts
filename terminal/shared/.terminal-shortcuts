@@ -47,9 +47,3 @@ alias gdc="git diff --cached"
 alias master="git checkout master && git pull origin master"
 alias main="git checkout main && git pull origin main"
 alias status="git status"
-
-# repo/project related alias values
-alias go-vanish="goto git --repo vc-backend"
-
-# folder nav related alias values
-alias cd_dev="cd desktop/dev"
